@@ -58,43 +58,23 @@
   });
 
   // Logic loop
-function startLoop() {
-  if (loop) return;
+  function startLoop() {
+    if (loop) return;
+    loop = setInterval(() => {
+      const obs = r.horizon.obstacles;
+      if (obs.length === 0) return;
+      const o = obs[0];
+      const d = o.xPos - r.tRex.xPos;
 
-  loop = setInterval(() => {
-    const obs = r.horizon.obstacles;
-    if (obs.length === 0) {
-      r.tRex.setDuck(false);
-      return;
-    }
+      if (autoJump && d < 140 && d > 0 && !r.tRex.jumping) {
+        r.tRex.startJump(0.7);
+      }
 
-    const o = obs[0];
-    const dino = r.tRex;
-    const distance = o.xPos - dino.xPos;
-
-    const isBird = o.typeConfig?.type === "PTERODACTYL";
-    const isLowBird = isBird && o.yPos < 75;
-
-    // 🦆 AUTO DUCK (prioritaire)
-    if (autoDuck && isLowBird && distance < 120 && distance > 0 && !dino.jumping) {
-      dino.setDuck(true);
-      return; // ⛔ empêche le jump en même temps
-    } else {
-      dino.setDuck(false);
-    }
-
-    // 🤖 AUTO JUMP (seulement si pas d'oiseau)
-    if (
-      autoJump &&
-      !isBird &&
-      distance < 140 &&
-      distance > 0 &&
-      !dino.jumping
-    ) {
-      dino.startJump(0.7);
-    }
-  }, 10);
-}
+      if (autoDuck) {
+        r.tRex.setDuck(o.yPos < 75);
+      }
+    }, 10);
+  }
 
   // Buttons
   ui.querySelector("#god").onclick = e => {
@@ -139,3 +119,4 @@ function startLoop() {
     }
   };
 })();
+
